@@ -31,7 +31,7 @@ function App() {
   const handleDeleteNote = async (id) => {
     //event.preventDefault();
     try {
-      await fetch(`http://localhost:5000/api/notes/${id}`, {
+      await fetch(`http://localhost:5000/api/notes/${noteId}`, {
         method: "DELETE",
       });
       const updatedNotesList = notes.filter((note) => note.id !== id);

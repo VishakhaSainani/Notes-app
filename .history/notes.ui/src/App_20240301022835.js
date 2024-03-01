@@ -28,16 +28,10 @@ function App() {
     setContent(note.content);
   };
 
-  const handleDeleteNote = async (id) => {
+  const handleDeleteNote = (id) => {
     //event.preventDefault();
-    try {
-      await fetch(`http://localhost:5000/api/notes/${id}`, {
-        method: "DELETE",
-      });
-      const updatedNotesList = notes.filter((note) => note.id !== id);
-      setNotes(updatedNotesList);
-    } catch (error) {}
-
+    const updatedNotesList = notes.filter((note) => note.id !== id);
+    setNotes(updatedNotesList);
     if (selectedNote && selectedNote.id === id) {
       setTitle("");
       setContent("");
@@ -78,14 +72,16 @@ function App() {
           headers: {
             "Content-Type": "application/json",
           },
-
           body: JSON.stringify({
-            title,
-            content,
+            method: "POST",
+            body: JSON.stringify({
+              title,
+              content,
+            }),
           }),
         }
       );
-      const updatedNote = await response.json();
+      const updatedNote = response.json();
       const updatedNotesList = notes.map((note) => {
         if (note.id === selectedNote.id) return updatedNote;
         else return note;

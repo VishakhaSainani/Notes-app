@@ -28,16 +28,10 @@ function App() {
     setContent(note.content);
   };
 
-  const handleDeleteNote = async (id) => {
+  const handleDeleteNote = (id) => {
     //event.preventDefault();
-    try {
-      await fetch(`http://localhost:5000/api/notes/${id}`, {
-        method: "DELETE",
-      });
-      const updatedNotesList = notes.filter((note) => note.id !== id);
-      setNotes(updatedNotesList);
-    } catch (error) {}
-
+    const updatedNotesList = notes.filter((note) => note.id !== id);
+    setNotes(updatedNotesList);
     if (selectedNote && selectedNote.id === id) {
       setTitle("");
       setContent("");
@@ -52,10 +46,12 @@ function App() {
         headers: {
           "Content-Type": "application/json",
         },
-
         body: JSON.stringify({
-          title,
-          content,
+          method: "POST",
+          body: JSON.stringify({
+            title,
+            content,
+          }),
         }),
       });
       const newNote = await response.json();
@@ -67,36 +63,22 @@ function App() {
     }
   };
 
-  const handleUpdateNote = async (event) => {
+  const handleUpdateNote = (event) => {
     event.preventDefault();
     if (!selectedNote) return;
-    try {
-      const response = await fetch(
-        `http://localhost:5000/api/notes/${selectedNote.id}`,
-        {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-          },
-
-          body: JSON.stringify({
-            title,
-            content,
-          }),
-        }
-      );
-      const updatedNote = await response.json();
-      const updatedNotesList = notes.map((note) => {
-        if (note.id === selectedNote.id) return updatedNote;
-        else return note;
-      });
-      setNotes(updatedNotesList);
-      setTitle("");
-      setContent("");
-      setSelectedNote(null);
-    } catch (error) {
-      console.log(error);
-    }
+    const updatedNote = {
+      id: selectedNote.id,
+      title: title,
+      content: content,
+    };
+    const updatedNotesList = notes.map((note) => {
+      if (note.id === selectedNote.id) return updatedNote;
+      else return note;
+    });
+    setNotes(updatedNotesList);
+    setTitle("");
+    setContent("");
+    setSelectedNote(null);
   };
 
   const handleCancel = () => {

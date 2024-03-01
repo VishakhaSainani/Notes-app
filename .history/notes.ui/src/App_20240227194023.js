@@ -1,26 +1,34 @@
-import React, { useEffect } from "react";
+import React from "react";
 import "./App.css";
 import { useState } from "react";
 
 function App() {
-  const [notes, setNotes] = useState([]);
+  const [notes, setNotes] = useState([
+    {
+      id: 1,
+      title: "note title 1",
+      content: "content 1",
+    },
+    {
+      id: 2,
+      title: "note title 2",
+      content: "content 2",
+    },
+    {
+      id: 3,
+      title: "note title 3",
+      content: "content 3",
+    },
+    {
+      id: 4,
+      title: "note title 4",
+      content: "content 4",
+    },
+  ]);
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
 
   const [selectedNote, setSelectedNote] = useState(null);
-
-  useEffect(() => {
-    const fetchNotes = async () => {
-      try {
-        const response = await fetch("http://localhost:5000/api/notes");
-        const notes = await response.json();
-        setNotes(notes);
-      } catch (error) {
-        console.log(error);
-      }
-    };
-    fetchNotes();
-  }, []);
 
   const handleSelectedNote = (note) => {
     setSelectedNote(note);
@@ -28,75 +36,45 @@ function App() {
     setContent(note.content);
   };
 
-  const handleDeleteNote = async (id) => {
+  const handleDeleteNote = (id) => {
     //event.preventDefault();
-    try {
-      await fetch(`http://localhost:5000/api/notes/${id}`, {
-        method: "DELETE",
-      });
-      const updatedNotesList = notes.filter((note) => note.id !== id);
-      setNotes(updatedNotesList);
-    } catch (error) {}
-
+    const updatedNotesList = notes.filter((note) => note.id !== id);
+    setNotes(updatedNotesList);
     if (selectedNote && selectedNote.id === id) {
       setTitle("");
       setContent("");
       setSelectedNote(null);
     }
   };
-  const handleAddNote = async (event) => {
+  const handleAddNote = (event) => {
     event.preventDefault();
-    try {
-      const response = await fetch("http://localhost:5000/api/notes", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+    const newNote = {
+      id: notes.length + 1,
+      title: title,
+      content: content,
+    };
 
-        body: JSON.stringify({
-          title,
-          content,
-        }),
-      });
-      const newNote = await response.json();
-      setNotes([newNote, ...notes]);
-      setTitle("");
-      setContent("");
-    } catch (error) {
-      console.log(error);
-    }
+    setNotes([newNote, ...notes]);
+    setTitle("");
+    setContent("");
   };
 
-  const handleUpdateNote = async (event) => {
+  const handleUpdateNote = (event) => {
     event.preventDefault();
     if (!selectedNote) return;
-    try {
-      const response = await fetch(
-        `http://localhost:5000/api/notes/${selectedNote.id}`,
-        {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-          },
-
-          body: JSON.stringify({
-            title,
-            content,
-          }),
-        }
-      );
-      const updatedNote = await response.json();
-      const updatedNotesList = notes.map((note) => {
-        if (note.id === selectedNote.id) return updatedNote;
-        else return note;
-      });
-      setNotes(updatedNotesList);
-      setTitle("");
-      setContent("");
-      setSelectedNote(null);
-    } catch (error) {
-      console.log(error);
-    }
+    const updatedNote = {
+      id: selectedNote.id,
+      title: title,
+      content: content,
+    };
+    const updatedNotesList = notes.map((note) => {
+      if (note.id === selectedNote.id) return updatedNote;
+      else return note;
+    });
+    setNotes(updatedNotesList);
+    setTitle("");
+    setContent("");
+    setSelectedNote(null);
   };
 
   const handleCancel = () => {
@@ -142,8 +120,8 @@ function App() {
               key={note.id}
               onClick={(event) => {
                 // Check if the click event target is not the delete button
-                // console.log(event.target);
-                if (!event.target.closest(".notes-header button")) {
+                // console.log(event.target.closest(".notes-header button"));
+                if (!event.target) {
                   handleSelectedNote(note);
                 }
               }}
